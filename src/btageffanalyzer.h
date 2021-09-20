@@ -1,7 +1,7 @@
 /*
  * btageffanalyzer.h
  *
- * URL:      ...
+ * URL:      https://github.com/gabrielmscampos/btageffanalyzer
  * Version:  1.0.0
  *
  * Copyright (C) 2021-2021 Gabriel Moreira da Silva Campos <gabrielmscampos@gmail.com>
@@ -106,7 +106,7 @@ class BTagEffAnalyzer {
             float eta,
             float pt
         ) {
-            // Absolute value of pT
+            // Absolute value of eta
             eta = fabs(eta);
 
             // If eta is out of bounds, return 0

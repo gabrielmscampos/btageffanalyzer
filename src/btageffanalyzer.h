@@ -60,7 +60,8 @@ class BTagEffAnalyzer {
         std::map<std::string, bounds> boundsMap;
 
         void readFile(
-            std::string fpath
+            std::string fpath,
+            std::string hadronFlavour
         ){
             rapidjson::Document effFileMap;
             FILE *fp_cert = fopen(fpath.c_str(), "r"); 
@@ -71,15 +72,16 @@ class BTagEffAnalyzer {
             for (auto i = effFileMap.MemberBegin(); i != effFileMap.MemberEnd(); i++) {
                 std::string dt = i->name.GetString();
                 rapidjson::Value& dtValues = effFileMap[dt.c_str()];
+                rapidjson::Value& dtHfValues = dtValues[hadronFlavour.c_str()];
                 float minEtaBound = 0.; float maxEtaBound = 0.;
                 float minPtBound = -1.; float maxPtBound = -1.;
-                for (int j = 0; j < dtValues.Size(); j++) {
+                for (int j = 0; j < dtHfValues.Size(); j++) {
                     data te;
-                    te.etaMin = dtValues[j]["eta_min"].GetFloat();
-                    te.etaMax = dtValues[j]["eta_max"].GetFloat();
-                    te.ptMin = dtValues[j]["pt_min"].GetFloat();
-                    te.ptMax = dtValues[j]["pt_max"].GetFloat();
-                    te.eff = dtValues[j]["eff"].GetDouble();
+                    te.etaMin = dtHfValues[j]["eta_min"].GetFloat();
+                    te.etaMax = dtHfValues[j]["eta_max"].GetFloat();
+                    te.ptMin = dtHfValues[j]["pt_min"].GetFloat();
+                    te.ptMax = dtHfValues[j]["pt_max"].GetFloat();
+                    te.eff = dtHfValues[j]["eff"].GetDouble();
                     dataMap[dt].push_back(te);
                     minEtaBound = minEtaBound < te.etaMin ? minEtaBound : te.etaMin;
                     maxEtaBound = maxEtaBound > te.etaMax ? maxEtaBound : te.etaMax;

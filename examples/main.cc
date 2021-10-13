@@ -9,10 +9,11 @@ int main() {
     // std::string filePath = "data/btageffmap-2016postVFP.json";
     // std::string filePath = "data/btageffmap-2017.json";
     std::string filePath = "data/btageffmap-2018.json";
+    std::string hadronFlavour = "b";
 
     // BTagEffAnalyzer
     BTagEffAnalyzer effAnalyzer;
-    effAnalyzer.readFile(filePath);
+    effAnalyzer.readFile(filePath, hadronFlavour);
 
     // Eval
     double eff = effAnalyzer.getEfficiency("TTTo2L2Nu", jet_eta, jet_pt);

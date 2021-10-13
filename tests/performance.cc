@@ -34,7 +34,8 @@ int main() {
     // BTagEffAnalyzer
     BTagEffAnalyzer effAnalyzer;
     effAnalyzer.readFile(
-        "data/btageffmap-2016postVFP.json"
+        "data/btageffmap-2016postVFP.json",
+        "b"
     );
 
     // "Event loop"

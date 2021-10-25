@@ -16,7 +16,7 @@ int main() {
     effAnalyzer.readFile(filePath, hadronFlavour);
 
     // Eval
-    double eff = effAnalyzer.getEfficiency("TTTo2L2Nu", jet_eta, jet_pt);
+    double eff = effAnalyzer.getEfficiency("TTTo2L2Nu", jet_eta, jet_pt, "TTTo2L2Nu");
     std::cout << "eff: " << eff << std::endl;
     
 }

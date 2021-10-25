@@ -43,7 +43,7 @@ int main() {
         jet_eta = etaArray[i];
         for (unsigned int j = 0; j < ptArray.size(); j++) {
             jet_pt = ptArray[j];
-            double eff = effAnalyzer.getEfficiency("DY", jet_eta, jet_pt);
+            double eff = effAnalyzer.getEfficiency("DY", jet_eta, jet_pt, "TTTo2L2Nu");
         }
     }
 

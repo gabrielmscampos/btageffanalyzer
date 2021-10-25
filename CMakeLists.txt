@@ -18,4 +18,5 @@ macro(add_example testname)
 endmacro(add_example)
 
 add_example(main examples/main.cc)
+add_test(missing tests/missing.cc)
 add_test(performance tests/performance.cc)

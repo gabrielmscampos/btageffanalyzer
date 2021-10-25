@@ -2,7 +2,7 @@
  * btageffanalyzer.h
  *
  * URL:      https://github.com/gabrielmscampos/btageffanalyzer
- * Version:  2.0.0
+ * Version:  2.1.0
  *
  * Copyright (C) 2021-2021 Gabriel Moreira da Silva Campos <gabrielmscampos@gmail.com>
  *

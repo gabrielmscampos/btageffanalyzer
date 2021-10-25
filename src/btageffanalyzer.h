@@ -106,10 +106,17 @@ class BTagEffAnalyzer {
         double getEfficiency(
             std::string datasetName,
             float eta,
-            float pt
+            float pt,
+            std::string defaultDataset
         ) {
             // Absolute value of eta
             eta = fabs(eta);
+
+            // Check if key 'hat' exists in the map
+            if (dataMap.count(datasetName) < 1) {
+                std::cout << "WARNING: Missing dataset " + datasetName + " in efficiency file. Defaulting to " + defaultDataset + "." << std::endl;
+                datasetName = defaultDataset;
+            }
 
             // If eta is out of bounds, return 0
             if (

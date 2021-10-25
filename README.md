@@ -30,7 +30,7 @@ int main() {
     effAnalyzer.readFile(filePath);
 
     // Eval
-    double eff = effAnalyzer.getEfficiency("TTTo2L2Nu", jet_eta, jet_pt);
+    double eff = effAnalyzer.getEfficiency("TTTo2L2Nu", jet_eta, jet_pt, "TTTo2L2Nu");
     std::cout << "eff: " << eff << std::endl;
     
 }
@@ -51,3 +51,10 @@ pt going from 0 to 4999.93
 total jets evaluated: 3048475
 Execution time btageffanalyzer: 5013.64 ms
 ```
+
+# TODO
+
+- [x] Add hadron flavour check
+- [x] Update efficiency sample files with hadron falvour schema
+- [x] Add fallback to missing datasets
+- [ ] Change warning log for a better logging object instead of std::cout

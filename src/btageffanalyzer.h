@@ -38,10 +38,11 @@ class BTagEffAnalyzer {
 
         double evalEfficiency(
             std::string datasetName,
+            std::string hadronFlavour,
             float eta,
             float pt
         ) {
-            const auto &entries = dataMap.at(datasetName);
+            const auto &entries = dataMap.at(datasetName).at(hadronFlavour);
             for (const auto &e: entries) {
                 if (
                     eta >= e.etaMin &&
@@ -56,12 +57,11 @@ class BTagEffAnalyzer {
         }
 
     public:
-        std::map<std::string, std::vector<data>> dataMap;
-        std::map<std::string, bounds> boundsMap;
+        std::map<std::string, std::map<std::string, std::vector<data>>> dataMap;
+        std::map<std::string, std::map<std::string, bounds>> boundsMap;
 
         void readFile(
-            std::string fpath,
-            std::string hadronFlavour
+            std::string fpath
         ){
             rapidjson::Document effFileMap;
             FILE *fp_cert = fopen(fpath.c_str(), "r"); 
@@ -72,32 +72,35 @@ class BTagEffAnalyzer {
             for (auto i = effFileMap.MemberBegin(); i != effFileMap.MemberEnd(); i++) {
                 std::string dt = i->name.GetString();
                 rapidjson::Value& dtValues = effFileMap[dt.c_str()];
-                rapidjson::Value& dtHfValues = dtValues[hadronFlavour.c_str()];
-                float minEtaBound = 0.; float maxEtaBound = 0.;
-                float minPtBound = -1.; float maxPtBound = -1.;
-                for (int j = 0; j < dtHfValues.Size(); j++) {
-                    data te;
-                    te.etaMin = dtHfValues[j]["eta_min"].GetFloat();
-                    te.etaMax = dtHfValues[j]["eta_max"].GetFloat();
-                    te.ptMin = dtHfValues[j]["pt_min"].GetFloat();
-                    te.ptMax = dtHfValues[j]["pt_max"].GetFloat();
-                    te.eff = dtHfValues[j]["eff"].GetDouble();
-                    dataMap[dt].push_back(te);
-                    minEtaBound = minEtaBound < te.etaMin ? minEtaBound : te.etaMin;
-                    maxEtaBound = maxEtaBound > te.etaMax ? maxEtaBound : te.etaMax;
-                    minPtBound = minPtBound < te.ptMin ? minPtBound : te.ptMin;
-                    maxPtBound = maxPtBound > te.ptMax ? maxPtBound : te.ptMax;
-                    if (minPtBound < 0.) {
-                        minPtBound = te.ptMin;
-                        maxPtBound = te.ptMax;
+                for (auto j = dtValues.MemberBegin(); j != dtValues.MemberEnd(); j++) {
+                    std::string hadronFlavour = j->name.GetString();
+                    rapidjson::Value& dtHfValues = dtValues[hadronFlavour.c_str()];
+                    float minEtaBound = 0.; float maxEtaBound = 0.;
+                    float minPtBound = -1.; float maxPtBound = -1.;
+                    for (int k = 0; k < dtHfValues.Size(); k++) {
+                        data te;
+                        te.etaMin = dtHfValues[k]["eta_min"].GetFloat();
+                        te.etaMax = dtHfValues[k]["eta_max"].GetFloat();
+                        te.ptMin = dtHfValues[k]["pt_min"].GetFloat();
+                        te.ptMax = dtHfValues[k]["pt_max"].GetFloat();
+                        te.eff = dtHfValues[k]["eff"].GetDouble();
+                        dataMap[dt][hadronFlavour].push_back(te);
+                        minEtaBound = minEtaBound < te.etaMin ? minEtaBound : te.etaMin;
+                        maxEtaBound = maxEtaBound > te.etaMax ? maxEtaBound : te.etaMax;
+                        minPtBound = minPtBound < te.ptMin ? minPtBound : te.ptMin;
+                        maxPtBound = maxPtBound > te.ptMax ? maxPtBound : te.ptMax;
+                        if (minPtBound < 0.) {
+                            minPtBound = te.ptMin;
+                            maxPtBound = te.ptMax;
+                        }
                     }
+                    bounds tb;
+                    tb.etaMin = minEtaBound;
+                    tb.etaMax = maxEtaBound;
+                    tb.ptMin = minPtBound;
+                    tb.ptMax = maxPtBound;
+                    boundsMap[dt][hadronFlavour] = tb;
                 }
-                bounds tb;
-                tb.etaMin = minEtaBound;
-                tb.etaMax = maxEtaBound;
-                tb.ptMin = minPtBound;
-                tb.ptMax = maxPtBound;
-                boundsMap[dt] = tb;
             }
 
             fclose(fp_cert);
@@ -105,23 +108,24 @@ class BTagEffAnalyzer {
 
         double getEfficiency(
             std::string datasetName,
+            std::string hadronFlavour,
             float eta,
             float pt,
-            std::string defaultDataset
+            std::string fallbackDataset
         ) {
             // Absolute value of eta
             eta = fabs(eta);
 
             // Check if key 'hat' exists in the map
             if (dataMap.count(datasetName) < 1) {
-                std::cout << "WARNING: Missing dataset " + datasetName + " in efficiency file. Defaulting to " + defaultDataset + "." << std::endl;
-                datasetName = defaultDataset;
+                std::cout << "WARNING: Missing dataset " + datasetName + " in efficiency file. Fallbacking to " + fallbackDataset + "." << std::endl;
+                datasetName = fallbackDataset;
             }
 
             // If eta is out of bounds, return 0
             if (
-                eta < boundsMap.at(datasetName).etaMin ||
-                eta > boundsMap.at(datasetName).etaMax
+                eta < boundsMap.at(datasetName).at(hadronFlavour).etaMin ||
+                eta > boundsMap.at(datasetName).at(hadronFlavour).etaMax
             ) return 0;
 
             // If pt is out of bounds, define pt to evaluate next to bound
@@ -129,15 +133,15 @@ class BTagEffAnalyzer {
             bool ptOutOfBounds = false;
 
             // If pt is lesser than minimum bound, return 0
-            if (pt < boundsMap.at(datasetName).ptMin) return 0;
+            if (pt < boundsMap.at(datasetName).at(hadronFlavour).ptMin) return 0;
 
             // When given pT is greater then maximum boundary we compute
             // the efficiency at the maximum boundary
-            if (pt >= boundsMap.at(datasetName).ptMax) {
+            if (pt >= boundsMap.at(datasetName).at(hadronFlavour).ptMax) {
                 ptOutOfBounds = true;
-                ptToEvaluate = boundsMap.at(datasetName).ptMax - .0001;
+                ptToEvaluate = boundsMap.at(datasetName).at(hadronFlavour).ptMax - .0001;
             }
 
-            return evalEfficiency(datasetName, eta, ptToEvaluate);
+            return evalEfficiency(datasetName, hadronFlavour, eta, ptToEvaluate);
         }
 };

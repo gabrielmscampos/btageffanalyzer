@@ -18,19 +18,20 @@ Here is a simple example for getting b-tagging effciency for a given `eta`, `pt`
 
 int main() {
 
-    // Inputs
-    float jet_eta = 1.3;
-    float jet_pt = 1500.0;;
-    // std::string filePath = "data/btageffmap-2016postVFP.json";
-    // std::string filePath = "data/btageffmap-2017.json";
-    std::string filePath = "data/btageffmap-2018.json";
-
-    // BTagEffAnalyzer
+    // Setup analyzer
+    std::string filePath = "data/btageffmap-DeepJet-loose-2017.json";
     BTagEffAnalyzer effAnalyzer;
     effAnalyzer.readFile(filePath);
 
+    // Event loop
+    float jet_eta = 1.3;
+    float jet_pt = 1500.0;;
+    std::string hadronFlavour = "b";
+    std::string datasetName = "TTTo2L2Nu";
+    std::string fallbackDataset = "TTTo2L2Nu";
+
     // Eval
-    double eff = effAnalyzer.getEfficiency("TTTo2L2Nu", jet_eta, jet_pt, "TTTo2L2Nu");
+    double eff = effAnalyzer.getEfficiency(datasetName, hadronFlavour, jet_eta, jet_pt, fallbackDataset);
     std::cout << "eff: " << eff << std::endl;
     
 }
@@ -49,12 +50,13 @@ This repository ships a performance test script [performance.cc](tests/performan
 eta going from -3 to 3
 pt going from 0 to 4999.93
 total jets evaluated: 3048475
-Execution time btageffanalyzer: 5013.64 ms
+Execution time btageffanalyzer: 5390.1 ms
 ```
 
 # TODO
 
 - [x] Add hadron flavour check
-- [x] Update efficiency sample files with hadron falvour schema
-- [x] Add fallback to missing datasets
+- [x] Update efficiency sample files with hadron flavour
+- [x] Add fallback for missing datasets
+- [x] Updated class for filtering hadron flavour when calling `getEfficiency`. It is not necessary anymore to instanciate three objects for each flavour.
 - [ ] Change warning log for a better logging object instead of std::cout

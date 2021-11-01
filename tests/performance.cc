@@ -26,24 +26,26 @@ int main() {
     std::cout << "pt going from " << ptArray[0] << " to " << ptArray[ptArray.size()-1] << std::endl;
     std::cout << "total jets evaluated: " << etaArray.size()*ptArray.size() << std::endl;
 
-    float jet_eta; float jet_pt;
+    float jet_eta;
+    float jet_pt;
+    std::string filePath = "data/btageffmap-DeepJet-loose-2017.json";
+    std::string hadronFlavour = "b";
+    std::string datasetName = "DYJetsToLL";
+    std::string fallbackDataset = "TTTo2L2Nu";
 
     // Compute time to get scale factors using this lib
     auto t1 = high_resolution_clock::now();
 
     // BTagEffAnalyzer
     BTagEffAnalyzer effAnalyzer;
-    effAnalyzer.readFile(
-        "data/btageffmap-2016postVFP.json",
-        "b"
-    );
+    effAnalyzer.readFile(filePath);
 
     // "Event loop"
     for (unsigned int i = 0; i < etaArray.size(); i++) {
         jet_eta = etaArray[i];
         for (unsigned int j = 0; j < ptArray.size(); j++) {
             jet_pt = ptArray[j];
-            double eff = effAnalyzer.getEfficiency("DY", jet_eta, jet_pt, "TTTo2L2Nu");
+            double eff = effAnalyzer.getEfficiency(datasetName, hadronFlavour, jet_eta, jet_pt, fallbackDataset);
         }
     }
 

@@ -1,6 +1,6 @@
 # btageffanalyzer
 
-btageffanalyzer is a C++ header-only library for parsing b-tagging efficiency maps computed with [BTaggingEffAnalyzer](https://github.com/gabrielmscampos/BTaggingEffAnalyzer).
+btageffanalyzer is a C++ header-only library for parsing b-tagging efficiency maps computed with [btaggingEffMaps](https://github.com/gabrielmscampos/btaggingEffMaps).
 
 # Dependencies
 

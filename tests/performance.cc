@@ -30,8 +30,8 @@ int main() {
     float jet_pt;
     std::string filePath = "data/btageffmap-DeepJet-loose-2017.json";
     std::string hadronFlavour = "b";
-    std::string datasetName = "DYJetsToLL";
-    std::string fallbackDataset = "TTTo2L2Nu";
+    std::string _datasetName = "DYJetsToLL";
+    std::string _fallbackDataset = "TTTo2L2Nu";
 
     // Compute time to get scale factors using this lib
     auto t1 = high_resolution_clock::now();
@@ -40,12 +40,15 @@ int main() {
     BTagEffAnalyzer effAnalyzer;
     effAnalyzer.readFile(filePath);
 
+    // Class calibration
+    effAnalyzer.calib(_datasetName, _fallbackDataset);
+
     // "Event loop"
     for (unsigned int i = 0; i < etaArray.size(); i++) {
         jet_eta = etaArray[i];
         for (unsigned int j = 0; j < ptArray.size(); j++) {
             jet_pt = ptArray[j];
-            double eff = effAnalyzer.getEfficiency(datasetName, hadronFlavour, jet_eta, jet_pt, fallbackDataset);
+            double eff = effAnalyzer.getEfficiency(hadronFlavour, jet_eta, jet_pt);
         }
     }
 

@@ -37,7 +37,6 @@ class BTagEffAnalyzer {
         };
 
         double evalEfficiency(
-            std::string datasetName,
             std::string hadronFlavour,
             float eta,
             float pt
@@ -59,6 +58,7 @@ class BTagEffAnalyzer {
     public:
         std::map<std::string, std::map<std::string, std::vector<data>>> dataMap;
         std::map<std::string, std::map<std::string, bounds>> boundsMap;
+        std::string datasetName;
 
         void readFile(
             std::string fpath
@@ -106,21 +106,25 @@ class BTagEffAnalyzer {
             fclose(fp_cert);
         }
 
+        void calib(
+            std::string _datasetName,
+            std::string _fallbackDataset
+        ) {
+            // Check if key `_datasetName` exists in the map
+            if (dataMap.count(_datasetName) < 1) {
+                std::cout << "WARNING: Missing dataset " + _datasetName + " in efficiency file. Fallbacking to " + _fallbackDataset + "." << std::endl;
+                _datasetName = _fallbackDataset;
+            }
+            datasetName = _datasetName;
+        }
+
         double getEfficiency(
-            std::string datasetName,
             std::string hadronFlavour,
             float eta,
-            float pt,
-            std::string fallbackDataset
+            float pt
         ) {
             // Absolute value of eta
             eta = fabs(eta);
-
-            // Check if key 'hat' exists in the map
-            if (dataMap.count(datasetName) < 1) {
-                std::cout << "WARNING: Missing dataset " + datasetName + " in efficiency file. Fallbacking to " + fallbackDataset + "." << std::endl;
-                datasetName = fallbackDataset;
-            }
 
             // If eta is out of bounds, return 0
             if (
@@ -142,6 +146,6 @@ class BTagEffAnalyzer {
                 ptToEvaluate = boundsMap.at(datasetName).at(hadronFlavour).ptMax - .0001;
             }
 
-            return evalEfficiency(datasetName, hadronFlavour, eta, ptToEvaluate);
+            return evalEfficiency(hadronFlavour, eta, ptToEvaluate);
         }
 };

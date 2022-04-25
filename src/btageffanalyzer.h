@@ -108,13 +108,25 @@ class BTagEffAnalyzer {
 
         void calib(
             std::string _datasetName,
-            std::string _fallbackDataset
+            std::string _fallbackDataset,
+            std::string _forceDataset = ""
         ) {
             // Check if key `_datasetName` exists in the map
             if (dataMap.count(_datasetName) < 1) {
                 std::cout << "WARNING: Missing dataset " + _datasetName + " in efficiency file. Fallbacking to " + _fallbackDataset + "." << std::endl;
                 _datasetName = _fallbackDataset;
             }
+
+            // Check if key `_forceDataset` exists in the map and is different from ""
+            if (_forceDataset != "") {
+                if (dataMap.count(_forceDataset) < 1) {
+                    std::cout << "WARNING: Force dataset " + _forceDataset + " is missing in efficiency file. Fallbacking to " + _fallbackDataset + "." << std::endl;
+                    _datasetName = _fallbackDataset;
+                } else {
+                    _datasetName = _forceDataset;
+                }
+            }
+
             datasetName = _datasetName;
         }
 
